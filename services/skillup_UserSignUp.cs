@@ -4,10 +4,10 @@ using MySql.Data.MySqlClient;
 
 namespace COMMON_PROJECT_STRUCTURE_API.services
 {
-    public class skillup_User
+    public class skillup_UserSignUp
     {
         dbServices ds = new dbServices();
-        public async Task<responseData> User(requestData req)
+        public async Task<responseData> UserSignUp(requestData req)
         {
             responseData resData = new responseData();
             try
@@ -18,7 +18,8 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 new MySqlParameter("@PhoneNumber",req.addInfo["PhoneNumber"].ToString()),
                
               };
-                var query = @"select * from pc_student.Skillup_User where Emaill=@Emaill or PhoneNumber=@PhoneNumber ";
+                // var query = @"select * from pc_student.Skillup_User where Emaill=@Emaill or PhoneNumber=@PhoneNumber ";
+                var query = @"select * from pc_student.Skillup_UserData where Emaill=@Emaill or PhoneNumber=@PhoneNumber ";
 
                 var dbData = ds.executeSQL(query, myParam);
                 if (dbData[0].Count() > 0)
@@ -32,9 +33,9 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                         //  new MySqlParameter("@Name", req.addInfo["Name"].ToString()),
                         new MySqlParameter("@PhoneNumber", req.addInfo["PhoneNumber"].ToString()),
                         new MySqlParameter("@Password", req.addInfo["Password"].ToString())  ,
-                           new MySqlParameter("@Emaill", req.addInfo["Emaill"].ToString())
+                        new MySqlParameter("@Emaill", req.addInfo["Emaill"].ToString())
                   };
-                    var sq = @"insert into pc_student.Skillup_User(Emaill,PhoneNumber,Password ) values(@Emaill,@PhoneNumber,@Password)";
+                    var sq = @"insert into pc_student.Skillup_UserData(Emaill,PhoneNumber,Password ) values(@Emaill,@PhoneNumber,@Password)";
 
                     var insertResult = ds.executeSQL(sq, insertParams);
                     if (insertResult[0].Count() == null)
@@ -54,7 +55,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             }
             catch (Exception ex)
             {
-
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
                 throw;
             }
             return resData;

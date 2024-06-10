@@ -10,7 +10,7 @@ ConfigureServices(s =>
 {
     IConfiguration appsettings = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
     s.AddSingleton<login>();
-    s.AddSingleton<skillup_User>();
+    s.AddSingleton<skillup_UserSignUp>();
     s.AddSingleton<skillup_UserProfile>();
     s.AddSingleton<skillup_UserSignIn>();
     s.AddSingleton<skillup_Course>();
@@ -42,7 +42,7 @@ ConfigureServices(s =>
     app.UseEndpoints(e =>
     {
         var login = e.ServiceProvider.GetRequiredService<login>();
-        var skillup_User = e.ServiceProvider.GetRequiredService<skillup_User>();
+        var skillup_UserSignUp = e.ServiceProvider.GetRequiredService<skillup_UserSignUp>();
         var skillup_UserProfile = e.ServiceProvider.GetRequiredService<skillup_UserProfile>();
         var skillup_UserSignIn = e.ServiceProvider.GetRequiredService<skillup_UserSignIn>();
         var skillup_Course = e.ServiceProvider.GetRequiredService<skillup_Course>();
@@ -60,23 +60,29 @@ ConfigureServices(s =>
                      await http.Response.WriteAsJsonAsync(await login.Login(rData));
 
              });
-               e.MapPost("skillup_User",
+               e.MapPost("skillup_UserSignUp",
      [AllowAnonymous] async (HttpContext http) =>
      {
                  var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
                  requestData rData = JsonSerializer.Deserialize<requestData>(body);
                  if (rData.eventID == "1001") // update
-                     await http.Response.WriteAsJsonAsync(await skillup_User.User(rData));
+                     await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.UserSignUp(rData));
 
              });
     
     e.MapPost("skillup_UserProfile",
      [AllowAnonymous] async (HttpContext http) =>
      {
-                 var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                 requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1001") // update
-                     await http.Response.WriteAsJsonAsync(await skillup_UserProfile.UserProfile(rData));
+                var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+                requestData rData = JsonSerializer.Deserialize<requestData>(body);
+                if (rData.eventID == "1001") // Insert
+                    await http.Response.WriteAsJsonAsync(await skillup_UserProfile.CreateProfile(rData));
+                if (rData.eventID == "1002") // Read
+                    await http.Response.WriteAsJsonAsync(await skillup_UserProfile.ReadProfile(rData));
+                if (rData.eventID == "1003") // update
+                    await http.Response.WriteAsJsonAsync(await skillup_UserProfile.UpdateProfile(rData));
+                if (rData.eventID == "1004") // Delete
+                    await http.Response.WriteAsJsonAsync(await skillup_UserProfile.DeleteProfile(rData));
 
              });
     e.MapPost("skillup_UserSignIn",
