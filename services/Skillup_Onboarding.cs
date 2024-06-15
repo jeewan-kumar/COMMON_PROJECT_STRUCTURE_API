@@ -1,50 +1,51 @@
-
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
 namespace COMMON_PROJECT_STRUCTURE_API.services
 {
-    public class skillup_Video
+    public class Skillup_Onboarding
     {
         dbServices ds = new dbServices();
-        public async Task<responseData> Video(requestData req)
+        public async Task<responseData> InsertData(requestData req)
         {
             responseData resData = new responseData();
             try
             {
                 MySqlParameter[] insertParams = new MySqlParameter[]
               {
-                        new MySqlParameter("@lesson_id", req.addInfo["lesson_id"].ToString()),
+                        new MySqlParameter("@image", req.addInfo["image"].ToString()),
                         new MySqlParameter("@title", req.addInfo["title"].ToString()),
-                        new MySqlParameter("@url", req.addInfo["url"].ToString()),
-                        new MySqlParameter("@duration", req.addInfo["duration"].ToString())  ,
+                        new MySqlParameter("@subtitle", req.addInfo["subtitle"].ToString()),
+                       
               };
-                var sq = @"insert into pc_student.Skillup_Video(lesson_id,title,url,duration) values(@lesson_id,@title,@url,@duration)";
+                var sq = @"insert into pc_student.Skillup_Onboarding(image,title,subtitle) values(@image,@title,@subtitle)";
 
                 var insertResult = ds.executeSQL(sq, insertParams);
-                
                 if (insertResult[0].Count() == null)
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "video insert UnSuccessful";
+                    resData.rData["rMessage"] = "UnSuccessful";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "Video insert Successful";
+                    resData.rData["rMessage"] = "id Create Successful";
 
                 }
+
+
             }
             catch (Exception ex)
             {
+                resData.rData["rCode"] = 1;
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
 
-                throw;
             }
             return resData;
         }
 
-        public async Task<responseData> ReadVideo(requestData req)
+        public async Task<responseData> ReadData(requestData req)
         {
             responseData resData = new responseData();
             try
@@ -54,18 +55,18 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                         new MySqlParameter("@id", req.addInfo["id"]),
                        
               };
-                var selectQuery = @"SELECT * FROM pc_student.Skillup_Video where id=@id";
+                var selectQuery = @"SELECT * FROM pc_student.Skillup_Onboarding where id=@id";
 
                 var selectResult = ds.executeSQL(selectQuery, Params);
                 if (selectResult[0].Count() == 0)
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "No Video found";
+                    resData.rData["rMessage"] = "No Id found";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "video retrieved Successfully";
+                    resData.rData["rMessage"] = "Id retrieved Successfully";
                     resData.rData["lessons"] = selectResult;
                 }
             }
@@ -77,7 +78,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             return resData;
         }
 
-        public async Task<responseData> UpdateVideo(requestData req)
+        public async Task<responseData> UpdateData(requestData req)
         {
             responseData resData = new responseData();
             try
@@ -85,25 +86,23 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 MySqlParameter[] updateParams = new MySqlParameter[]
                 {
                     new MySqlParameter("@id", req.addInfo["id"].ToString()),
-                    new MySqlParameter("@lesson_id", req.addInfo["lesson_id"].ToString()),
+                    new MySqlParameter("@image", req.addInfo["image"].ToString()),
                     new MySqlParameter("@title", req.addInfo["title"].ToString()),
-                    new MySqlParameter("@url", req.addInfo["url"].ToString()),
-                    new MySqlParameter("@duration", req.addInfo["duration"].ToString())  ,
-                    
+                    new MySqlParameter("@subtitle", req.addInfo["subtitle"].ToString()),
                 };
 
-                var updateQuery = @"UPDATE pc_student.Skillup_Video SET lesson_id = @lesson_id, title = @title, url = @url, duration = @duration WHERE id = @id";
+                var updateQuery = @"UPDATE pc_student.Skillup_Onboarding SET image = @image,title = @title,subtitle = @subtitle  WHERE id = @id";
 
                 var updateResult = ds.executeSQL(updateQuery, updateParams);
                 if (updateResult[0].Count() == 0 && updateResult==null)
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "UnSuccessful update video";
+                    resData.rData["rMessage"] = "Id update profile";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "video updated Successfully";
+                    resData.rData["rMessage"] = "Id updated Successfully";
                 }
             }
             catch (Exception ex)
@@ -114,7 +113,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             return resData;
         }
 
-        public async Task<responseData> DeleteVideo(requestData req)
+        public async Task<responseData> DeleteData(requestData req)
         {
             responseData resData = new responseData();
             try
@@ -127,7 +126,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 };
 
                 // Define the delete query
-                var query = @"DELETE FROM pc_student.Skillup_Video WHERE id = @id";
+                var query = @"DELETE FROM pc_student.Skillup_Onboarding WHERE id = @id";
                 //var query = @"UPDATE pc_student.Skillup_UserProfile SET status = @status WHERE id = @id";
 
                 // Execute the delete query
@@ -137,12 +136,12 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 if (deleteResult[0].Count() == 0 && deleteResult==null)
                 {
                     resData.rData["rCode"] = 1; // Unsuccessful
-                    resData.rData["rMessage"] = "video Unsuccessful delete";
+                    resData.rData["rMessage"] = "id Unsuccessful delete";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0; // Successful
-                    resData.rData["rMessage"] = "video delete Successful";
+                    resData.rData["rMessage"] = "Id delete Successful";
                 }
             }
             catch (Exception ex)
@@ -155,5 +154,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             // Return the response data
             return resData;
         }
+
     }
 }
+

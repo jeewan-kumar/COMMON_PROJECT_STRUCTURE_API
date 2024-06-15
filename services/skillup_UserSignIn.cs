@@ -18,22 +18,22 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 string query = "";
                 MySqlParameter[] myParam;
 
-                if (rData.addInfo.ContainsKey("Emaill"))
+                if (rData.addInfo.ContainsKey("email"))
                 {
-                    query = @"SELECT * FROM pc_student.Skillup_UserData WHERE Password = @Password AND Emaill = @Emaill";
+                    query = @"SELECT * FROM pc_student.Skillup_UserSignUp WHERE password = @password AND email = @email";
                     myParam = new MySqlParameter[]
                     {
-                        new MySqlParameter("@Password", rData.addInfo["Password"]),
-                        new MySqlParameter("@Emaill", rData.addInfo["Emaill"])
+                        new MySqlParameter("@password", rData.addInfo["password"]),
+                        new MySqlParameter("@email", rData.addInfo["email"])
                     };
                 }
-                else if (rData.addInfo.ContainsKey("PhoneNumber"))
+                else if (rData.addInfo.ContainsKey("phone_number"))
                 {
-                    query = @"SELECT * FROM pc_student.Skillup_UserData WHERE Password = @Password AND PhoneNumber = @PhoneNumber";
+                    query = @"SELECT * FROM pc_student.Skillup_UserSignUp WHERE password = @password AND phone_number = @phone_number";
                     myParam = new MySqlParameter[]
                     {
-                        new MySqlParameter("@Password", rData.addInfo["Password"]),
-                        new MySqlParameter("@PhoneNumber", rData.addInfo["PhoneNumber"])
+                        new MySqlParameter("@password", rData.addInfo["password"]),
+                        new MySqlParameter("@phone_number", rData.addInfo["phone_number"])
                     };
                 }
                 else
@@ -47,7 +47,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 {
                     resData.rData["rCode"] = 0;
                     resData.rData["rMessage"] = "Login Successful";
-                    resData.rData["id"]=dbData[0][0]["id"];
+                    resData.rData["id"]=dbData[0][0]["skillup_id"];
                 }
                 else
                 {
@@ -62,5 +62,6 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             }
             return resData;
         }
+        
     }
 }

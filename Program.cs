@@ -18,6 +18,7 @@ ConfigureServices(s =>
     s.AddSingleton<skillup_Video>();
     s.AddSingleton<upload>();
     s.AddSingleton<contact>();
+    s.AddSingleton<Skillup_Onboarding>();
 
     s.AddAuthorization();
     s.AddControllers();
@@ -48,6 +49,7 @@ ConfigureServices(s =>
         var skillup_Course = e.ServiceProvider.GetRequiredService<skillup_Course>();
         var skillup_Lesson = e.ServiceProvider.GetRequiredService<skillup_Lesson>();
         var skillup_Video = e.ServiceProvider.GetRequiredService<skillup_Video>();
+        var Skillup_Onboarding = e.ServiceProvider.GetRequiredService<Skillup_Onboarding>();
         var upload = e.ServiceProvider.GetRequiredService<upload>();
         var contact = e.ServiceProvider.GetRequiredService<contact>();
 
@@ -65,10 +67,16 @@ ConfigureServices(s =>
      {
                  var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
                  requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1001") // update
+                 if (rData.eventID == "1001") // UserSignUp
                      await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.UserSignUp(rData));
-
+                if (rData.eventID == "1002") // ForgotPassword
+                     await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.ForgotPassword(rData));
+                if (rData.eventID == "1003") // ResetPassword
+                     await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.ResetPassword(rData));
+                if (rData.eventID == "1004") // VerifyOtp
+                     await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.VerifyOtp(rData));
              });
+
     
     e.MapPost("skillup_UserProfile",
      [AllowAnonymous] async (HttpContext http) =>
@@ -85,6 +93,23 @@ ConfigureServices(s =>
                     await http.Response.WriteAsJsonAsync(await skillup_UserProfile.DeleteProfile(rData));
 
              });
+
+      e.MapPost("Skillup_Onboarding",
+     [AllowAnonymous] async (HttpContext http) =>
+     {
+                var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+                requestData rData = JsonSerializer.Deserialize<requestData>(body);
+                if (rData.eventID == "1001") // Insert
+                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.InsertData(rData));
+                if (rData.eventID == "1002") // Read
+                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.ReadData(rData));
+                if (rData.eventID == "1003") // update
+                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.UpdateData(rData));
+                if (rData.eventID == "1004") // Delete
+                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.ReadData(rData));
+
+             });
+
     e.MapPost("skillup_UserSignIn",
      [AllowAnonymous] async (HttpContext http) =>
      {
@@ -101,6 +126,12 @@ ConfigureServices(s =>
                  requestData rData = JsonSerializer.Deserialize<requestData>(body);
                  if (rData.eventID == "1001") // update
                      await http.Response.WriteAsJsonAsync(await skillup_Video.Video(rData));
+                if (rData.eventID == "1002") // Read
+                    await http.Response.WriteAsJsonAsync(await skillup_Video.ReadVideo(rData));
+                if (rData.eventID == "1003") // update
+                    await http.Response.WriteAsJsonAsync(await skillup_Video.UpdateVideo(rData));
+                if (rData.eventID == "1004") // Delete
+                    await http.Response.WriteAsJsonAsync(await skillup_Video.DeleteVideo(rData));
 
              });
 
@@ -111,6 +142,12 @@ ConfigureServices(s =>
                  requestData rData = JsonSerializer.Deserialize<requestData>(body);
                  if (rData.eventID == "1001") // update
                      await http.Response.WriteAsJsonAsync(await skillup_Lesson.Lesson(rData));
+                if (rData.eventID == "1002") // Read
+                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.ReadLesson(rData));
+                if (rData.eventID == "1003") // update
+                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.UpdateLesson(rData));
+                if (rData.eventID == "1004") // Delete
+                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.DeleteLesson(rData));
 
              });
 
@@ -121,6 +158,12 @@ ConfigureServices(s =>
                  requestData rData = JsonSerializer.Deserialize<requestData>(body);
                  if (rData.eventID == "1001") // update
                      await http.Response.WriteAsJsonAsync(await skillup_Course.Course(rData));
+                if (rData.eventID == "1002") // Read
+                    await http.Response.WriteAsJsonAsync(await skillup_Course.getCourse(rData));
+                if (rData.eventID == "1003") // update
+                    await http.Response.WriteAsJsonAsync(await skillup_Course.UpdateCourse(rData));
+                if (rData.eventID == "1004") // Delete
+                    await http.Response.WriteAsJsonAsync(await skillup_Course.DeleteCourse(rData));
 
              });
 
