@@ -6,41 +6,46 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
 {
     public class Skillup_Onboarding
     {
-        dbServices ds = new dbServices();
-        public async Task<responseData> InsertData(requestData req)
+      dbServices ds = new dbServices();
+
+         public async Task<responseData> InsertData(requestData req)
         {
             responseData resData = new responseData();
             try
             {
+                byte[] imageData = null;
+
+                if (req.addInfo.ContainsKey("image"))
+                {
+                    var filePath = req.addInfo["image"].ToString();
+                    imageData = File.ReadAllBytes(filePath);
+                }
+
                 MySqlParameter[] insertParams = new MySqlParameter[]
-              {
-                        new MySqlParameter("@image", req.addInfo["image"].ToString()),
-                        new MySqlParameter("@title", req.addInfo["title"].ToString()),
-                        new MySqlParameter("@subtitle", req.addInfo["subtitle"].ToString()),
-                       
-              };
-                var sq = @"insert into pc_student.Skillup_Onboarding(image,title,subtitle) values(@image,@title,@subtitle)";
+                {
+                    new MySqlParameter("@image", MySqlDbType.Blob) { Value = imageData },
+                    new MySqlParameter("@title", req.addInfo["title"].ToString()),
+                    new MySqlParameter("@subtitle", req.addInfo["subtitle"].ToString())
+                };
+
+                var sq = @"INSERT INTO pc_student.Skillup_Onboarding(image, title, subtitle) VALUES(@image, @title, @subtitle)";
 
                 var insertResult = ds.executeSQL(sq, insertParams);
-                if (insertResult[0].Count() == null)
+                if (insertResult[0].Count() == 0 && insertResult == null)
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "UnSuccessful";
+                    resData.rData["rMessage"] = "Unsuccessful";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "id Create Successful";
-
+                    resData.rData["rMessage"] = "ID Create Successful";
                 }
-
-
             }
             catch (Exception ex)
             {
                 resData.rData["rCode"] = 1;
                 resData.rData["rMessage"] = "An error occurred: " + ex.Message;
-
             }
             return resData;
         }
@@ -121,8 +126,8 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 // Create MySQL parameters for the delete query
                 MySqlParameter[] deleteParams = new MySqlParameter[]
                 {
-            new MySqlParameter("@id", req.addInfo["id"].ToString()),
-              new MySqlParameter("@status",0)
+                    new MySqlParameter("@id", req.addInfo["id"].ToString()),
+            //   new MySqlParameter("@status",0)
                 };
 
                 // Define the delete query

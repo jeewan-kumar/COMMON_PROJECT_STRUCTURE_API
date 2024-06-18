@@ -106,7 +106,7 @@ ConfigureServices(s =>
                 if (rData.eventID == "1003") // update
                     await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.UpdateData(rData));
                 if (rData.eventID == "1004") // Delete
-                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.ReadData(rData));
+                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.DeleteData(rData));
 
              });
 
