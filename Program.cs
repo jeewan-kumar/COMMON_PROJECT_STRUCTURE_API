@@ -148,6 +148,10 @@ ConfigureServices(s =>
                     await http.Response.WriteAsJsonAsync(await skillup_Lesson.UpdateLesson(rData));
                 if (rData.eventID == "1004") // Delete
                     await http.Response.WriteAsJsonAsync(await skillup_Lesson.DeleteLesson(rData));
+                if (rData.eventID == "1005") // GetLessonsForCourse
+                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.GetLessonsForCourse(rData));
+                if (rData.eventID == "1006") // GetLessonById
+                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.GetLessonById(rData));
 
              });
 
@@ -164,6 +168,8 @@ ConfigureServices(s =>
                     await http.Response.WriteAsJsonAsync(await skillup_Course.UpdateCourse(rData));
                 if (rData.eventID == "1004") // Delete
                     await http.Response.WriteAsJsonAsync(await skillup_Course.DeleteCourse(rData));
+                if (rData.eventID == "1005") // getall
+                    await http.Response.WriteAsJsonAsync(await skillup_Course.GetAllCourses(rData));
 
              });
 

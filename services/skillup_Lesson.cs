@@ -151,5 +151,92 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             return resData;
         }
 
+        public async Task<responseData> GetLessonsForCourse(requestData req)
+{
+    responseData resData = new responseData();
+    try
+    {
+        // Retrieve courseId from request parameters
+        int courseId = Convert.ToInt32(req.addInfo["courseId"]);
+
+        // Construct query parameters
+        MySqlParameter[] queryParams = new MySqlParameter[]
+        {
+            new MySqlParameter("@course_id", courseId)
+        };
+
+        // Define the SELECT query to retrieve lessons for a course
+        string selectQuery = @"SELECT * FROM pc_student.Skillup_Lesson WHERE course_id = @course_id";
+
+        // Execute the query
+        var selectResult = ds.executeSQL(selectQuery, queryParams);
+
+        // Check if any lessons were found
+        if (selectResult[0].Count == 0)
+        {
+            resData.rData["rCode"] = 1; // Unsuccessful
+            resData.rData["rMessage"] = "No lessons found for the course";
+        }
+        else
+        {
+            resData.rData["rCode"] = 0; // Successful
+            resData.rData["rMessage"] = "Lessons retrieved successfully";
+            resData.rData["lessons"] = selectResult[0]; // Assuming selectResult is a list of lessons
+        }
+    }
+    catch (Exception ex)
+    {
+        resData.rData["rCode"] = 1; // Unsuccessful
+        resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+    }
+
+    // Return the response data
+    return resData;
+}
+
+    public async Task<responseData> GetLessonById(requestData req)
+{
+    responseData resData = new responseData();
+    try
+    {
+        // Retrieve lessonId from request parameters
+        int lessonId = Convert.ToInt32(req.addInfo["lessonId"]);
+
+        // Construct query parameters
+        MySqlParameter[] queryParams = new MySqlParameter[]
+        {
+            new MySqlParameter("@id", lessonId)
+        };
+
+        // Define the SELECT query to retrieve lesson details by lessonId
+        string selectQuery = @"SELECT * FROM pc_student.Skillup_Lesson WHERE id = @id";
+
+        // Execute the query
+        var selectResult = ds.executeSQL(selectQuery, queryParams);
+
+        // Check if the lesson was found
+        if (selectResult[0].Count == 0)
+        {
+            resData.rData["rCode"] = 1; // Unsuccessful
+            resData.rData["rMessage"] = "Lesson not found";
+        }
+        else
+        {
+            resData.rData["rCode"] = 0; // Successful
+            resData.rData["rMessage"] = "Lesson retrieved successfully";
+            resData.rData["lesson"] = selectResult[0][0]; // Assuming selectResult[0] is a list and we fetch the first item
+        }
+    }
+    catch (Exception ex)
+    {
+        resData.rData["rCode"] = 1; // Unsuccessful
+        resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+    }
+
+    // Return the response data
+    return resData;
+}
+
+
     }
 }

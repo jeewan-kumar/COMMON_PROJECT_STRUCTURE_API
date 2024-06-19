@@ -27,19 +27,19 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 if (insertResult[0].Count() == null)
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "UnSuccessful";
+                    resData.rData["rMessage"] = "Failed to create course";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "Course insert Successful";
+                    resData.rData["rMessage"] = "Course created successfully";
 
                 }
             }
             catch (Exception ex)
             {
-
-                throw;
+                resData.rData["rCode"] = 1;
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
             }
             return resData;
         }
@@ -155,7 +155,39 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             // Return the response data
             return resData;
         }
+        public async Task<responseData> GetAllCourses(requestData req)
+        {
+            responseData resData = new responseData();
+            try
+            {
+               var selectQuery = @"SELECT * FROM pc_student.Skillup_Course";
+                MySqlParameter[] getParams = new MySqlParameter[0];
+                
+                var selectResult = ds.executeSQL(selectQuery, getParams);
 
+             
+                if (selectResult[0].Count() == 0 && selectResult==null)
+                {
+                    resData.rData["rCode"] = 1; // Unsuccessful
+                    resData.rData["rMessage"] = "No courses found";
+                }
+                else
+                {
+                    resData.rData["rCode"] = 0; // Successful
+                    resData.rData["rMessage"] = "Courses retrieved successfully";
+                    resData.rData["courses"] = selectResult;
+                }
+            }
+            catch (Exception ex)
+            {
+                
+                resData.rData["rCode"] = 1; // Indicate an error
+                resData.rData["rMessage"] = "Error: " + ex.Message;
+            }
+
+            return resData;
+        }
+        
     }
 }
 

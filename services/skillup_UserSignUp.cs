@@ -126,97 +126,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
 //     // For example, using an email service or SMS gateway
 // }
 
-public async Task<responseData> VerifyOtp(requestData req)
-{
-    responseData resData = new responseData();
-    try
-    {
-        if (req.addInfo == null)
-        {
-            resData.rData["rCode"] = 1;
-            resData.rData["rMessage"] = "Invalid request data";
-            return resData;
-        }
 
-        string identifier = req.addInfo.ContainsKey("email") ? req.addInfo["email"].ToString() : req.addInfo["phone_number"].ToString();
-        string otp = req.addInfo.ContainsKey("otp") ? req.addInfo["otp"].ToString() : null;
-
-        if (string.IsNullOrEmpty(otp))
-        {
-            resData.rData["rCode"] = 1;
-            resData.rData["rMessage"] = "OTP is required";
-            return resData;
-        }
-
-        string query = @"SELECT * FROM pc_student.Skillup_UserSignUp where email=@identifier AND otp=@otp AND otp_expiration > @current_time";
-        MySqlParameter[] myParam = new MySqlParameter[]
-        {
-            new MySqlParameter("@identifier", identifier),
-            new MySqlParameter("@otp", otp),
-            new MySqlParameter("@current_time", DateTime.UtcNow)
-        };
-
-        // Assuming ds is an instance of your DataAccess class
-        var dbData = ds.executeSQL(query, myParam);
-
-        if (dbData == null || dbData.Count == 0 || dbData[0].Count == 0)
-        {
-            resData.rData["rCode"] = 1;
-            resData.rData["rMessage"] = "Invalid or expired OTP";
-        }
-        else
-        {
-            resData.rData["rCode"] = 0;
-            resData.rData["rMessage"] = "OTP verified successfully";
-        }
-    }
-    catch (Exception ex)
-    {
-        resData.rData["rMessage"] = "An error occurred: " + ex.Message;
-        // Uncomment throw; if you want to propagate the exception
-        // throw;
-    }
-    return resData;
-}
-
-
-// public async Task<responseData> ResetPassword(requestData req)
-// {
-//     responseData resData = new responseData();
-//     try
-//     {
-//         string identifier = req.addInfo.ContainsKey("email") ? req.addInfo["email"].ToString() : req.addInfo["phone_number"].ToString();
-//         string newPassword = req.addInfo["NewPassword"].ToString();
-
-//         string query = req.addInfo.ContainsKey("email") ?
-//             @"UPDATE pc_student.Skillup_UserSignUp SET password=@NewPassword WHERE email=@identifier" :
-//             @"UPDATE pc_student.Skillup_UserSignUp SET password=@NewPassword WHERE phone_number=@identifier";
-
-//         MySqlParameter[] myParam = new MySqlParameter[]
-//         {
-//             new MySqlParameter("@identifier", identifier),
-//             new MySqlParameter("@NewPassword", newPassword)
-//         };
-
-//         var updateResult = ds.executeSQL(query, myParam);
-//         if (updateResult[0].Count() == 0)
-//         {
-//             resData.rData["rCode"] = 1;
-//             resData.rData["rMessage"] = "Password reset successful";
-//         }
-//         else
-//         {
-//             resData.rData["rCode"] = 0;
-//             resData.rData["rMessage"] = "Password reset failed";
-//         }
-//     }
-//     catch (Exception ex)
-//     {
-//         resData.rData["rCode"] = 1;
-//         resData.rData["rMessage"] = "An error occurred: " + ex.Message;
-//     }
-//     return resData;
-// }
 
 public async Task<responseData> ForgotPassword(requestData req)
 {
@@ -302,6 +212,58 @@ private void SendOTP(string identifier, string otp)
 }
 
 
+public async Task<responseData> VerifyOtp(requestData req)
+{
+    responseData resData = new responseData();
+    try
+    {
+        if (req.addInfo == null)
+        {
+            resData.rData["rCode"] = 1;
+            resData.rData["rMessage"] = "Invalid request data";
+            return resData;
+        }
+
+        string identifier = req.addInfo.ContainsKey("email") ? req.addInfo["email"].ToString() : req.addInfo["phone_number"].ToString();
+        string otp = req.addInfo.ContainsKey("otp") ? req.addInfo["otp"].ToString() : null;
+
+        if (string.IsNullOrEmpty(otp))
+        {
+            resData.rData["rCode"] = 1;
+            resData.rData["rMessage"] = "OTP is required";
+            return resData;
+        }
+
+        string query = @"SELECT * FROM pc_student.Skillup_UserSignUp where email=@identifier AND otp=@otp AND otp_expiration > @current_time";
+        MySqlParameter[] myParam = new MySqlParameter[]
+        {
+            new MySqlParameter("@identifier", identifier),
+            new MySqlParameter("@otp", otp),
+            new MySqlParameter("@current_time", DateTime.UtcNow)
+        };
+
+        // Assuming ds is an instance of your DataAccess class
+        var dbData = ds.executeSQL(query, myParam);
+
+        if (dbData == null || dbData.Count == 0 || dbData[0].Count == 0)
+        {
+            resData.rData["rCode"] = 1;
+            resData.rData["rMessage"] = "Invalid or expired OTP";
+        }
+        else
+        {
+            resData.rData["rCode"] = 0;
+            resData.rData["rMessage"] = "OTP verified successfully";
+        }
+    }
+    catch (Exception ex)
+    {
+        resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+        // Uncomment throw; if you want to propagate the exception
+        // throw;
+    }
+    return resData;
+}
     public async Task<responseData> ResetPassword(requestData req)
 {
     responseData resData = new responseData();
@@ -318,8 +280,10 @@ private void SendOTP(string identifier, string otp)
                 new MySqlParameter("@otp", req.addInfo["otp"].ToString()),
                 new MySqlParameter("@NewPassword", req.addInfo["NewPassword"].ToString())
             };
+            // query = @"SELECT * FROM pc_student.Skillup_UserSignUp
+            //           WHERE email = @identifier AND otp = @otp AND otp_expiration > NOW()";
             query = @"SELECT * FROM pc_student.Skillup_UserSignUp
-                      WHERE email = @identifier AND otp = @otp AND otp_expiration > NOW()";
+                      WHERE email = @identifier AND otp_expiration > NOW()";
         }
         else if (req.addInfo.ContainsKey("phone_number"))
         {
@@ -329,8 +293,10 @@ private void SendOTP(string identifier, string otp)
                 new MySqlParameter("@otp", req.addInfo["otp"].ToString()),
                 new MySqlParameter("@NewPassword", req.addInfo["NewPassword"].ToString())
             };
+            // query = @"SELECT * FROM pc_student.Skillup_UserSignUp
+            //           WHERE phone_number = @identifier AND otp = @otp AND otp_expiration > NOW()";
             query = @"SELECT * FROM pc_student.Skillup_UserSignUp
-                      WHERE phone_number = @identifier AND otp = @otp AND otp_expiration > NOW()";
+                      WHERE phone_number = @identifier AND  otp_expiration > NOW()";
         }
         else
         {
@@ -379,3 +345,43 @@ private void SendOTP(string identifier, string otp)
 
     }
 }
+
+
+
+// public async Task<responseData> ResetPassword(requestData req)
+// {
+//     responseData resData = new responseData();
+//     try
+//     {
+//         string identifier = req.addInfo.ContainsKey("email") ? req.addInfo["email"].ToString() : req.addInfo["phone_number"].ToString();
+//         string newPassword = req.addInfo["NewPassword"].ToString();
+
+//         string query = req.addInfo.ContainsKey("email") ?
+//             @"UPDATE pc_student.Skillup_UserSignUp SET password=@NewPassword WHERE email=@identifier" :
+//             @"UPDATE pc_student.Skillup_UserSignUp SET password=@NewPassword WHERE phone_number=@identifier";
+
+//         MySqlParameter[] myParam = new MySqlParameter[]
+//         {
+//             new MySqlParameter("@identifier", identifier),
+//             new MySqlParameter("@NewPassword", newPassword)
+//         };
+
+//         var updateResult = ds.executeSQL(query, myParam);
+//         if (updateResult[0].Count() == 0)
+//         {
+//             resData.rData["rCode"] = 1;
+//             resData.rData["rMessage"] = "Password reset successful";
+//         }
+//         else
+//         {
+//             resData.rData["rCode"] = 0;
+//             resData.rData["rMessage"] = "Password reset failed";
+//         }
+//     }
+//     catch (Exception ex)
+//     {
+//         resData.rData["rCode"] = 1;
+//         resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+//     }
+//     return resData;
+// }
