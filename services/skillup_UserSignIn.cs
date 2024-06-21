@@ -38,6 +38,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 }
                 else
                 {
+                    resData.rData["rCode"] = 1;
                     resData.rData["rMessage"] = "Email or Phone Number is required";
                     return resData;
                 }
@@ -48,11 +49,60 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                     resData.rData["rCode"] = 0;
                     resData.rData["rMessage"] = "Login Successful";
                     resData.rData["id"]=dbData[0][0]["skillup_id"];
+
+                     // Create a new session token
+                    string token = Guid.NewGuid().ToString();
+                    MySqlParameter[] sessionParams = new MySqlParameter[]
+                    {
+                        new MySqlParameter("@skillup_id", dbData[0][0]["skillup_id"]),
+                        new MySqlParameter("@token", token)
+                    };
+                    string sessionQuery = @"INSERT INTO pc_student.Skillup_Sessions (skillup_id, token) VALUES (@skillup_id, @token)";
+                    ds.ExecuteSQLName(sessionQuery, sessionParams);
+                    
+                    resData.rData["token"] = token;
                 }
                 else
                 {
                     resData.rData["rCode"] = 1;
                     resData.rData["rMessage"] = "Invalid Email/Phone Number and Password";
+                }
+            }
+            catch (Exception ex)
+            {
+                resData.rData["rCode"] = 1;
+                resData.rData["rMessage"] = "Error: " + ex.Message;
+            }
+            return resData;
+        }
+         public async Task<responseData> UserLogout(requestData rData)
+        {
+            responseData resData = new responseData();
+            try
+            {
+                if (!rData.addInfo.ContainsKey("token"))
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Token is required for logout";
+                    return resData;
+                }
+
+                string query = @"DELETE FROM pc_student.Skillup_Sessions WHERE token = @token";
+                MySqlParameter[] myParam = new MySqlParameter[]
+                {
+                    new MySqlParameter("@token", rData.addInfo["token"])
+                };
+
+                var dbData = ds.ExecuteSQLName(query, myParam);
+                if (dbData!=null )
+                {
+                    resData.rData["rCode"] = 0;
+                    resData.rData["rMessage"] = "Logout Successful";
+                }
+                else
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Invalid Token";
                 }
             }
             catch (Exception ex)

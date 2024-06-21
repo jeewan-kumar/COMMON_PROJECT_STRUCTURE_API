@@ -23,7 +23,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 var sq = @"insert into pc_student.Skillup_Video(lesson_id,title,url,duration) values(@lesson_id,@title,@url,@duration)";
 
                 var insertResult = ds.executeSQL(sq, insertParams);
-                
+
                 if (insertResult[0].Count() == null)
                 {
                     resData.rData["rCode"] = 1;
@@ -52,7 +52,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 MySqlParameter[] Params = new MySqlParameter[]
               {
                         new MySqlParameter("@id", req.addInfo["id"]),
-                       
+
               };
                 var selectQuery = @"SELECT * FROM pc_student.Skillup_Video where id=@id";
 
@@ -89,13 +89,13 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                     new MySqlParameter("@title", req.addInfo["title"].ToString()),
                     new MySqlParameter("@url", req.addInfo["url"].ToString()),
                     new MySqlParameter("@duration", req.addInfo["duration"].ToString())  ,
-                    
+
                 };
 
                 var updateQuery = @"UPDATE pc_student.Skillup_Video SET lesson_id = @lesson_id, title = @title, url = @url, duration = @duration WHERE id = @id";
 
                 var updateResult = ds.executeSQL(updateQuery, updateParams);
-                if (updateResult[0].Count() == 0 && updateResult==null)
+                if (updateResult[0].Count() == 0 && updateResult == null)
                 {
                     resData.rData["rCode"] = 1;
                     resData.rData["rMessage"] = "UnSuccessful update video";
@@ -134,7 +134,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 var deleteResult = ds.executeSQL(query, deleteParams);
 
                 // Check the result of the delete operation
-                if (deleteResult[0].Count() == 0 && deleteResult==null)
+                if (deleteResult[0].Count() == 0 && deleteResult == null)
                 {
                     resData.rData["rCode"] = 1; // Unsuccessful
                     resData.rData["rMessage"] = "video Unsuccessful delete";
@@ -150,6 +150,46 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 // Handle any exceptions that occur during the operation
                 resData.rData["rCode"] = 1; // Indicate an error
                 resData.rData["rMessage"] = "Error: " + ex.Message;
+            }
+
+            // Return the response data
+            return resData;
+        }
+        public async Task<responseData> VideoForLesson(requestData req)
+        {
+            responseData resData = new responseData();
+            try
+            {
+                // int lessonId = Convert.ToInt32(req.addInfo["lessonId"]);
+
+                MySqlParameter[] queryParams = new MySqlParameter[]
+                {
+            new MySqlParameter("@lesson_id", req.addInfo["lesson_id"].ToString())
+                };
+
+                // Define the SELECT query to retrieve lessons for a course
+                string selectQuery = @"SELECT * FROM pc_student.Skillup_Video WHERE lesson_id = @lesson_id";
+
+                // Execute the query
+                var selectResult = ds.executeSQL(selectQuery, queryParams);
+
+                // Check if any lessons were found
+                if (selectResult[0].Count == 0)
+                {
+                    resData.rData["rCode"] = 1; // Unsuccessful
+                    resData.rData["rMessage"] = "No videos found for the lesson";
+                }
+                else
+                {
+                    resData.rData["rCode"] = 0; // Successful
+                    resData.rData["rMessage"] = "Videos retrieved successfully";
+                    resData.rData["lessons"] = selectResult[0]; // Assuming selectResult is a list of lessons
+                }
+            }
+            catch (Exception ex)
+            {
+                resData.rData["rCode"] = 1; // Unsuccessful
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
             }
 
             // Return the response data

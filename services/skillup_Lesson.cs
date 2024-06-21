@@ -24,12 +24,12 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 if (insertResult[0].Count() == null)
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "UnSuccessful";
+                    resData.rData["rMessage"] = "Failed to add lesson";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "Lesson insert Successful";
+                    resData.rData["rMessage"] = "Lesson added successfully";
 
                 }
             }
@@ -157,12 +157,12 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
     try
     {
         // Retrieve courseId from request parameters
-        int courseId = Convert.ToInt32(req.addInfo["courseId"]);
+       // int courseId = Convert.ToInt32(req.addInfo["course_id"]);
 
         // Construct query parameters
         MySqlParameter[] queryParams = new MySqlParameter[]
         {
-            new MySqlParameter("@course_id", courseId)
+            new MySqlParameter("@course_id", req.addInfo["course_id"].ToString())
         };
 
         // Define the SELECT query to retrieve lessons for a course
@@ -199,13 +199,10 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
     responseData resData = new responseData();
     try
     {
-        // Retrieve lessonId from request parameters
-        int lessonId = Convert.ToInt32(req.addInfo["lessonId"]);
-
-        // Construct query parameters
+        // Construct query parameters from the request data
         MySqlParameter[] queryParams = new MySqlParameter[]
         {
-            new MySqlParameter("@id", lessonId)
+            new MySqlParameter("@id", req.addInfo["id"].ToString())
         };
 
         // Define the SELECT query to retrieve lesson details by lessonId
@@ -215,7 +212,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
         var selectResult = ds.executeSQL(selectQuery, queryParams);
 
         // Check if the lesson was found
-        if (selectResult[0].Count == 0)
+        if (selectResult.Count == 0)
         {
             resData.rData["rCode"] = 1; // Unsuccessful
             resData.rData["rMessage"] = "Lesson not found";
@@ -224,7 +221,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
         {
             resData.rData["rCode"] = 0; // Successful
             resData.rData["rMessage"] = "Lesson retrieved successfully";
-            resData.rData["lesson"] = selectResult[0][0]; // Assuming selectResult[0] is a list and we fetch the first item
+            resData.rData["lesson"] = selectResult[0]; // Assuming selectResult[0] contains the lesson details
         }
     }
     catch (Exception ex)
@@ -236,6 +233,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
     // Return the response data
     return resData;
 }
+
 
 
     }

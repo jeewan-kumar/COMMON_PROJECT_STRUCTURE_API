@@ -56,150 +56,164 @@ ConfigureServices(s =>
         e.MapPost("login",
      [AllowAnonymous] async (HttpContext http) =>
      {
-                 var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                 requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1001") // update
-                     await http.Response.WriteAsJsonAsync(await login.Login(rData));
+         var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+         requestData rData = JsonSerializer.Deserialize<requestData>(body);
+         if (rData.eventID == "1001") // update
+             await http.Response.WriteAsJsonAsync(await login.Login(rData));
 
-             });
-               e.MapPost("skillup_UserSignUp",
-     [AllowAnonymous] async (HttpContext http) =>
-     {
-                 var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                 requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1001") // UserSignUp
-                     await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.UserSignUp(rData));
-                if (rData.eventID == "1002") // ForgotPassword
-                     await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.ForgotPassword(rData));
-                if (rData.eventID == "1003") // ResetPassword
-                     await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.ResetPassword(rData));
-                if (rData.eventID == "1004") // VerifyOtp
-                     await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.VerifyOtp(rData));
-             });
+     });
+        e.MapPost("skillup_UserSignUp",
+[AllowAnonymous] async (HttpContext http) =>
+{
+  var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+  requestData rData = JsonSerializer.Deserialize<requestData>(body);
+  if (rData.eventID == "1001") // UserSignUp
+      await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.UserSignUp(rData));
+  if (rData.eventID == "1002") // ForgotPassword
+      await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.ForgotPassword(rData));
+  if (rData.eventID == "1003") // ResetPassword
+      await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.ResetPassword(rData));
+  if (rData.eventID == "1004") // VerifyOtp
+      await http.Response.WriteAsJsonAsync(await skillup_UserSignUp.VerifyOtp(rData));
+});
 
-    
-    e.MapPost("skillup_UserProfile",
-     [AllowAnonymous] async (HttpContext http) =>
-     {
-                var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                if (rData.eventID == "1001") // Insert
-                    await http.Response.WriteAsJsonAsync(await skillup_UserProfile.CreateProfile(rData));
-                if (rData.eventID == "1002") // Read
-                    await http.Response.WriteAsJsonAsync(await skillup_UserProfile.ReadProfile(rData));
-                if (rData.eventID == "1003") // update
-                    await http.Response.WriteAsJsonAsync(await skillup_UserProfile.UpdateProfile(rData));
-                if (rData.eventID == "1004") // Delete
-                    await http.Response.WriteAsJsonAsync(await skillup_UserProfile.DeleteProfile(rData));
 
-             });
+        e.MapPost("skillup_UserProfile",
+         [AllowAnonymous] async (HttpContext http) =>
+         {
+             var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+             requestData rData = JsonSerializer.Deserialize<requestData>(body);
+             if (rData.eventID == "1001") // Insert
+                 await http.Response.WriteAsJsonAsync(await skillup_UserProfile.CreateProfile(rData));
+             if (rData.eventID == "1002") // Read
+                 await http.Response.WriteAsJsonAsync(await skillup_UserProfile.ReadProfile(rData));
+             if (rData.eventID == "1003") // update
+                 await http.Response.WriteAsJsonAsync(await skillup_UserProfile.UpdateProfile(rData));
+             if (rData.eventID == "1004") // Delete
+                 await http.Response.WriteAsJsonAsync(await skillup_UserProfile.DeleteProfile(rData));
 
-      e.MapPost("Skillup_Onboarding",
-     [AllowAnonymous] async (HttpContext http) =>
-     {
-                var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                if (rData.eventID == "1001") // Insert
-                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.InsertData(rData));
-                if (rData.eventID == "1002") // Read
-                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.ReadData(rData));
-                if (rData.eventID == "1003") // update
-                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.UpdateData(rData));
-                if (rData.eventID == "1004") // Delete
-                    await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.DeleteData(rData));
+         });
 
-             });
+        e.MapPost("Skillup_Onboarding",
+       [AllowAnonymous] async (HttpContext http) =>
+       {
+           var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+           requestData rData = JsonSerializer.Deserialize<requestData>(body);
+           if (rData.eventID == "1001") // Insert
+               await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.InsertData(rData));
+           if (rData.eventID == "1002") // Read
+               await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.ReadData(rData));
+           if (rData.eventID == "1003") // update
+               await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.UpdateData(rData));
+           if (rData.eventID == "1004") // Delete
+               await http.Response.WriteAsJsonAsync(await Skillup_Onboarding.DeleteData(rData));
 
-    e.MapPost("skillup_UserSignIn",
-     [AllowAnonymous] async (HttpContext http) =>
-     {
-                 var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                 requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1001") // update
-                     await http.Response.WriteAsJsonAsync(await skillup_UserSignIn.UserSignIn(rData));
+       });
 
-             });
-    e.MapPost("skillup_Video",
-     [AllowAnonymous] async (HttpContext http) =>
-     {
-                 var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                 requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1001") // update
-                     await http.Response.WriteAsJsonAsync(await skillup_Video.Video(rData));
-                if (rData.eventID == "1002") // Read
-                    await http.Response.WriteAsJsonAsync(await skillup_Video.ReadVideo(rData));
-                if (rData.eventID == "1003") // update
-                    await http.Response.WriteAsJsonAsync(await skillup_Video.UpdateVideo(rData));
-                if (rData.eventID == "1004") // Delete
-                    await http.Response.WriteAsJsonAsync(await skillup_Video.DeleteVideo(rData));
+        e.MapPost("skillup_UserSignIn",
+         [AllowAnonymous] async (HttpContext http) =>
+         {
+             var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+             requestData rData = JsonSerializer.Deserialize<requestData>(body);
+             if (rData.eventID == "1001") // UserSignIn
+                 await http.Response.WriteAsJsonAsync(await skillup_UserSignIn.UserSignIn(rData));
 
-             });
+             if (rData.eventID == "1002") // UserLogout
+                 await http.Response.WriteAsJsonAsync(await skillup_UserSignIn.UserLogout(rData));
 
-    e.MapPost("skillup_Lesson",
-     [AllowAnonymous] async (HttpContext http) =>
-     {
-                 var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                 requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1001") // update
-                     await http.Response.WriteAsJsonAsync(await skillup_Lesson.Lesson(rData));
-                if (rData.eventID == "1002") // Read
-                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.ReadLesson(rData));
-                if (rData.eventID == "1003") // update
-                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.UpdateLesson(rData));
-                if (rData.eventID == "1004") // Delete
-                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.DeleteLesson(rData));
-                if (rData.eventID == "1005") // GetLessonsForCourse
-                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.GetLessonsForCourse(rData));
-                if (rData.eventID == "1006") // GetLessonById
-                    await http.Response.WriteAsJsonAsync(await skillup_Lesson.GetLessonById(rData));
+         });
+        e.MapPost("skillup_Video",
+         [AllowAnonymous] async (HttpContext http) =>
+         {
+             var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+             requestData rData = JsonSerializer.Deserialize<requestData>(body);
+             if (rData.eventID == "1001") // update
+                 await http.Response.WriteAsJsonAsync(await skillup_Video.Video(rData));
+             if (rData.eventID == "1002") // Read
+                 await http.Response.WriteAsJsonAsync(await skillup_Video.ReadVideo(rData));
+             if (rData.eventID == "1003") // update
+                 await http.Response.WriteAsJsonAsync(await skillup_Video.UpdateVideo(rData));
+             if (rData.eventID == "1004") // Delete
+                 await http.Response.WriteAsJsonAsync(await skillup_Video.DeleteVideo(rData));
 
-             });
+             if (rData.eventID == "1005") // VideoForLesson
+                 await http.Response.WriteAsJsonAsync(await skillup_Video.VideoForLesson(rData));
 
-    e.MapPost("skillup_Course",
-     [AllowAnonymous] async (HttpContext http) =>
-     {
-                 var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                 requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1001") // update
-                     await http.Response.WriteAsJsonAsync(await skillup_Course.Course(rData));
-                if (rData.eventID == "1002") // Read
-                    await http.Response.WriteAsJsonAsync(await skillup_Course.getCourse(rData));
-                if (rData.eventID == "1003") // update
-                    await http.Response.WriteAsJsonAsync(await skillup_Course.UpdateCourse(rData));
-                if (rData.eventID == "1004") // Delete
-                    await http.Response.WriteAsJsonAsync(await skillup_Course.DeleteCourse(rData));
-                if (rData.eventID == "1005") // getall
-                    await http.Response.WriteAsJsonAsync(await skillup_Course.GetAllCourses(rData));
+         });
 
-             });
+        e.MapPost("skillup_Lesson",
+         [AllowAnonymous] async (HttpContext http) =>
+         {
+             var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+             requestData rData = JsonSerializer.Deserialize<requestData>(body);
+             if (rData.eventID == "1001") // update
+                 await http.Response.WriteAsJsonAsync(await skillup_Lesson.Lesson(rData));
+             if (rData.eventID == "1002") // Read
+                 await http.Response.WriteAsJsonAsync(await skillup_Lesson.ReadLesson(rData));
+             if (rData.eventID == "1003") // update
+                 await http.Response.WriteAsJsonAsync(await skillup_Lesson.UpdateLesson(rData));
+             if (rData.eventID == "1004") // Delete
+                 await http.Response.WriteAsJsonAsync(await skillup_Lesson.DeleteLesson(rData));
+             if (rData.eventID == "1005") // GetLessonsForCourse
+                 await http.Response.WriteAsJsonAsync(await skillup_Lesson.GetLessonsForCourse(rData));
+             if (rData.eventID == "1006") // GetLessonById
+                 await http.Response.WriteAsJsonAsync(await skillup_Lesson.GetLessonById(rData));
+
+         });
+
+        e.MapPost("skillup_Course",
+         [AllowAnonymous] async (HttpContext http) =>
+         {
+             var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+             requestData rData = JsonSerializer.Deserialize<requestData>(body);
+             if (rData.eventID == "1001") // update
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.Course(rData));
+             if (rData.eventID == "1002") // Read
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.getCourse(rData));
+             if (rData.eventID == "1003") // update
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.UpdateCourse(rData));
+             if (rData.eventID == "1004") // Delete
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.DeleteCourse(rData));
+             if (rData.eventID == "1005") // getall
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.GetAllCourses(rData));
+             if (rData.eventID == "1006") // getall
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.GetPopularCourses(rData));
+             if (rData.eventID == "1007") // getall
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.GetUserEnrolledCourses(rData));
+             if (rData.eventID == "1008") // getall
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.EnrollCourse(rData));
+             if (rData.eventID == "1009") // getall
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.SearchCourses(rData));
+
+         });
 
         e.MapPost("upload",
   [AllowAnonymous] async (HttpContext http) =>
   {
-                 var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                 requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1001") // update
-                     await http.Response.WriteAsJsonAsync(await upload.Upload(rData));
+      var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+      requestData rData = JsonSerializer.Deserialize<requestData>(body);
+      if (rData.eventID == "1001") // update
+          await http.Response.WriteAsJsonAsync(await upload.Upload(rData));
 
-             });
+  });
 
         e.MapPost("contact",
    [AllowAnonymous] async (HttpContext http) =>
    {
-                 var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
-                 requestData rData = JsonSerializer.Deserialize<requestData>(body);
-                 if (rData.eventID == "1005") // update
-                     await http.Response.WriteAsJsonAsync(await contact.Contact(rData));
+       var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+       requestData rData = JsonSerializer.Deserialize<requestData>(body);
+       if (rData.eventID == "1005") // update
+           await http.Response.WriteAsJsonAsync(await contact.Contact(rData));
 
-             });
-             
+   });
+
         IConfiguration appsettings = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         e.MapGet("/dbstring",
                   async c =>
                   {
-                       dbServices dspoly = new dbServices();
-                       await c.Response.WriteAsJsonAsync("{'mongoDatabase':" + appsettings["mongodb:connStr"] + "," + " " + "MYSQLDatabase" + " =>" + appsettings["db:connStrPrimary"]);
-                   });
+                      dbServices dspoly = new dbServices();
+                      await c.Response.WriteAsJsonAsync("{'mongoDatabase':" + appsettings["mongodb:connStr"] + "," + " " + "MYSQLDatabase" + " =>" + appsettings["db:connStrPrimary"]);
+                  });
 
         e.MapGet("/bing",
           async c => await c.Response.WriteAsJsonAsync("{'Name':'Anish','Age':'26','Project':'COMMON_PROJECT_STRUCTURE_API'}"));
