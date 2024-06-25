@@ -6,9 +6,9 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
 {
     public class Skillup_Onboarding
     {
-      dbServices ds = new dbServices();
+        dbServices ds = new dbServices();
 
-         public async Task<responseData> InsertData(requestData req)
+        public async Task<responseData> InsertData(requestData req)
         {
             responseData resData = new responseData();
             try
@@ -58,7 +58,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 MySqlParameter[] Params = new MySqlParameter[]
               {
                         new MySqlParameter("@id", req.addInfo["id"]),
-                       
+
               };
                 var selectQuery = @"SELECT * FROM pc_student.Skillup_Onboarding where id=@id";
 
@@ -88,26 +88,49 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             responseData resData = new responseData();
             try
             {
-                MySqlParameter[] updateParams = new MySqlParameter[]
+                byte[] imageData = null;
+
+                // Check if the request contains a new image file to update
+                if (req.addInfo.ContainsKey("image"))
                 {
-                    new MySqlParameter("@id", req.addInfo["id"].ToString()),
-                    new MySqlParameter("@image", req.addInfo["image"].ToString()),
-                    new MySqlParameter("@title", req.addInfo["title"].ToString()),
-                    new MySqlParameter("@subtitle", req.addInfo["subtitle"].ToString()),
-                };
+                    var filePath = req.addInfo["image"].ToString();
+                    imageData = File.ReadAllBytes(filePath);
+                }
 
-                var updateQuery = @"UPDATE pc_student.Skillup_Onboarding SET image = @image,title = @title,subtitle = @subtitle  WHERE id = @id";
+                // Parameters for SQL query
+                MySqlParameter[] updateParams = null;
 
+                // Check if image data is available to update
+                if (imageData != null)
+                {
+                    updateParams = new MySqlParameter[]
+                    {
+                new MySqlParameter("@id", req.addInfo["id"].ToString()),
+                new MySqlParameter("@image", MySqlDbType.Blob) { Value = imageData },
+                new MySqlParameter("@title", req.addInfo["title"].ToString()),
+                new MySqlParameter("@subtitle", req.addInfo["subtitle"].ToString()),
+                    };
+                }
+                
+
+                // SQL query to update record
+                var updateQuery = @"UPDATE pc_student.Skillup_Onboarding 
+                            SET title = @title, subtitle = @subtitle " + (imageData != null ? ", image = @image " : "") +
+                                    "WHERE id = @id";
+
+                // Execute SQL update query
                 var updateResult = ds.executeSQL(updateQuery, updateParams);
-                if (updateResult[0].Count() == 0 && updateResult==null)
+
+                // Check if update was successful
+                if (updateResult == null || updateResult.Count() == 0)
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "Id update profile";
+                    resData.rData["rMessage"] = "Unsuccessful update";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "Id updated Successfully";
+                    resData.rData["rMessage"] = "Updated Successfully";
                 }
             }
             catch (Exception ex)
@@ -117,6 +140,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             }
             return resData;
         }
+
 
         public async Task<responseData> DeleteData(requestData req)
         {
@@ -138,7 +162,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 var deleteResult = ds.executeSQL(query, deleteParams);
 
                 // Check the result of the delete operation
-                if (deleteResult[0].Count() == 0 && deleteResult==null)
+                if (deleteResult[0].Count() == 0 && deleteResult == null)
                 {
                     resData.rData["rCode"] = 1; // Unsuccessful
                     resData.rData["rMessage"] = "id Unsuccessful delete";

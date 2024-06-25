@@ -174,16 +174,21 @@ ConfigureServices(s =>
                  await http.Response.WriteAsJsonAsync(await skillup_Course.UpdateCourse(rData));
              if (rData.eventID == "1004") // Delete
                  await http.Response.WriteAsJsonAsync(await skillup_Course.DeleteCourse(rData));
-             if (rData.eventID == "1005") // getall
+             if (rData.eventID == "1005") // GetAllCourses
                  await http.Response.WriteAsJsonAsync(await skillup_Course.GetAllCourses(rData));
-             if (rData.eventID == "1006") // getall
+             if (rData.eventID == "1006") // GetPopularCourses
                  await http.Response.WriteAsJsonAsync(await skillup_Course.GetPopularCourses(rData));
-             if (rData.eventID == "1007") // getall
+             if (rData.eventID == "1007") // GetUserEnrolledCourses
                  await http.Response.WriteAsJsonAsync(await skillup_Course.GetUserEnrolledCourses(rData));
-             if (rData.eventID == "1008") // getall
-                 await http.Response.WriteAsJsonAsync(await skillup_Course.EnrollCourse(rData));
-             if (rData.eventID == "1009") // getall
+             if (rData.eventID == "1008") // EnrollCourse
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.AlreadyEnrollCourse(rData));
+             if (rData.eventID == "1009") // SearchCourses
                  await http.Response.WriteAsJsonAsync(await skillup_Course.SearchCourses(rData));
+            if (rData.eventID == "10010") // UpdateCourseImage
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.UpdateCourseImage(rData));
+            if (rData.eventID == "10011") // DisplayEnrolledCourses
+                 await http.Response.WriteAsJsonAsync(await skillup_Course.DisplayEnrolledCourses(rData));
+
 
          });
 

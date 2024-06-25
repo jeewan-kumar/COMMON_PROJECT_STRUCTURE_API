@@ -89,21 +89,49 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             responseData resData = new responseData();
             try
             {
-                MySqlParameter[] updateParams = new MySqlParameter[]
+                byte[] imageData = null;
+
+                // Check if the request contains a new image file to update
+                if (req.addInfo.ContainsKey("course_Image"))
                 {
-                    new MySqlParameter("@id", req.addInfo["id"].ToString()),
-                    new MySqlParameter("@title", req.addInfo["title"].ToString()),
-                    new MySqlParameter("@description", req.addInfo["description"].ToString()),
-                    new MySqlParameter("@details", req.addInfo["details"].ToString()),
-                    new MySqlParameter("@popularity", req.addInfo["popularity"].ToString()),
-                    new MySqlParameter("@enrolled", req.addInfo["enrolled"].ToString())
-                };
+                    var filePath = req.addInfo["course_Image"].ToString();
+                    imageData = File.ReadAllBytes(filePath);
+                }
 
-                var updateQuery = @"UPDATE pc_student.Skillup_Course SET title = @title, description = @description, details = @details, popularity = @popularity, enrolled = @enrolled WHERE id = @id";
+                // Parameters for SQL query
+                MySqlParameter[] updateParams = null;
 
+                // Check if image data is available to update
+                if (imageData != null)
+                {
+                    updateParams = new MySqlParameter[]
+                    {
+                new MySqlParameter("@id", req.addInfo["id"].ToString()),
+                new MySqlParameter("@title", req.addInfo["title"].ToString()),
+                new MySqlParameter("@description", req.addInfo["description"].ToString()),
+                new MySqlParameter("@details", req.addInfo["details"].ToString()),
+                new MySqlParameter("@popularity", req.addInfo["popularity"].ToString()),
+                new MySqlParameter("@enrolled", req.addInfo["enrolled"].ToString()),
+                new MySqlParameter("@course_Image", MySqlDbType.Blob) { Value = imageData }
+                    };
+                }
+
+
+                // SQL query to update course including image, conditionally
+                var updateQuery = @"
+            UPDATE pc_student.Skillup_Course 
+            SET title = @title, 
+                description = @description, 
+                details = @details, 
+                popularity = @popularity, 
+                enrolled = @enrolled " + (imageData != null ? ", course_Image = @course_Image " : "") +
+                    "WHERE id = @id";
+
+                // Execute SQL update query
                 var updateResult = ds.executeSQL(updateQuery, updateParams);
 
-                if (updateResult == null || updateResult.Count() == 0)
+                // Check if update was successful
+                if (updateResult == null || updateResult.Count() == 0 || updateResult[0].Count() == 0)
                 {
                     resData.rData["rCode"] = 1;
                     resData.rData["rMessage"] = "Unsuccessful update Course";
@@ -121,6 +149,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             }
             return resData;
         }
+
 
         public async Task<responseData> DeleteCourse(requestData req)
         {
@@ -256,7 +285,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
 
             return resData;
         }
-        public async Task<responseData> EnrollCourse(requestData req)
+        public async Task<responseData> AlreadyEnrollCourse(requestData req)
         {
             responseData resData = new responseData();
             try
@@ -382,6 +411,117 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
 
             return resData;
         }
+
+
+        public async Task<responseData> UpdateCourseImage(requestData req)
+        {
+            responseData resData = new responseData();
+            try
+            {
+                byte[] imageData = null;
+
+                // Check if the request contains a new image file to update
+                if (req.addInfo.ContainsKey("course_Image"))
+                {
+                    var filePath = req.addInfo["course_Image"].ToString();
+                    imageData = File.ReadAllBytes(filePath);
+                }
+
+                // Parameters for SQL query
+                MySqlParameter[] updateParams = null;
+
+                // Check if image data is available to update
+                if (imageData != null)
+                {
+                    updateParams = new MySqlParameter[]
+                    {
+                new MySqlParameter("@id", req.addInfo["id"].ToString()),
+                new MySqlParameter("@course_Image", MySqlDbType.Blob) { Value = imageData },
+
+                    };
+                }
+
+
+                // SQL query to update record
+                var updateQuery = @"UPDATE pc_student.Skillup_Course SET course_Image = @course_Image WHERE id = @id";
+
+                // Execute SQL update query
+                var updateResult = ds.executeSQL(updateQuery, updateParams);
+
+                // Check if update was successful
+                if (updateResult == null || updateResult.Count() == 0)
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Unsuccessful update";
+                }
+                else
+                {
+                    resData.rData["rCode"] = 0;
+                    resData.rData["rMessage"] = "Updated Successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                resData.rData["rCode"] = 1;
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+            }
+            return resData;
+        }
+
+        public async Task<responseData> DisplayEnrolledCourses(requestData req)
+        {
+            responseData resData = new responseData();
+            try
+            {
+                if (!req.addInfo.ContainsKey("skillup_id"))
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Skillup ID is required";
+                    return resData;
+                }
+
+                var skillupId = req.addInfo["skillup_id"];
+
+                var query = @"
+            SELECT sc.id, sc.title, sc.description, sc.details, sc.popularity, sc.enrolled
+            FROM pc_student.Skillup_Enrollment se
+            JOIN pc_student.Skillup_Course sc ON se.course_id = sc.id
+            WHERE se.skillup_id = @skillup_id;
+        ";
+
+                // Define parameters
+                MySqlParameter[] parameters = new MySqlParameter[]
+                {
+            new MySqlParameter("@skillup_id", skillupId)
+                };
+
+                // Execute the query
+                var result = ds.executeSQL(query, parameters);
+
+                // Check the result and set response data accordingly
+                if (result == null || result.Count == 0)
+                {
+                    resData.rData["rCode"] = 1; // No courses found
+                    resData.rData["rMessage"] = "No courses found for the given Skillup ID";
+                }
+                else
+                {
+                    resData.rData["rCode"] = 0; // Successful
+                    resData.rData["rMessage"] = "Enrolled courses retrieved successfully";
+                    resData.rData["courses"] = result;
+                }
+            }
+            catch (Exception ex)
+            {
+                resData.rData["rCode"] = 1; // Indicate an error
+                resData.rData["rMessage"] = "Error: " + ex.Message;
+            }
+
+            return resData;
+        }
+
+
+
 
     }
 }
