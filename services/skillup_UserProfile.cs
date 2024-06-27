@@ -160,6 +160,99 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             return resData;
         }
 
+        public async Task<responseData> UpdateUserProfileImage(requestData req)
+        {
+            responseData resData = new responseData();
+            try
+            {
+                byte[] imageData = null;
+
+                // Check if the request contains a new image file to update
+                if (req.addInfo.ContainsKey("profile_picture"))
+                {
+                    var filePath = req.addInfo["profile_picture"].ToString();
+                    imageData = File.ReadAllBytes(filePath);
+                }
+
+                // Parameters for SQL query
+                MySqlParameter[] updateParams = null;
+
+                // Check if image data is available to update
+                if (imageData != null)
+                {
+                    updateParams = new MySqlParameter[]
+                    {
+                new MySqlParameter("@id", req.addInfo["id"].ToString()),
+                new MySqlParameter("@profile_picture", MySqlDbType.Blob) { Value = imageData },
+
+                    };
+                }
+
+
+                // SQL query to update record
+                var updateQuery = @"UPDATE pc_student.Skillup_UserProfile SET profile_picture = @profile_picture WHERE id = @id";
+
+                // Execute SQL update query
+                var updateResult = ds.executeSQL(updateQuery, updateParams);
+
+                // Check if update was successful
+                if (updateResult == null || updateResult.Count() == 0)
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Unsuccessful profile_picture update";
+                }
+                else
+                {
+                    resData.rData["rCode"] = 0;
+                    resData.rData["rMessage"] = "Updated Successfully profile_picture";
+                }
+            }
+            catch (Exception ex)
+            {
+                resData.rData["rCode"] = 1;
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+            }
+            return resData;
+        }
+         public async Task<responseData> GetUserProfile(requestData req)
+        {
+            responseData resData = new responseData();
+            try
+            {
+                MySqlParameter[] Params = new MySqlParameter[]
+                {
+                    new MySqlParameter("@skillup_id", req.addInfo["skillup_id"]),
+                };
+
+                var selectQuery = @"
+                    SELECT up.profile_picture, up.first_name, up.last_name, up.date_of_birth, up.bio, us.email, us.phone_number,
+                           CONCAT(up.first_name, ' ', up.last_name) AS name
+                    FROM pc_student.Skillup_UserProfile up
+                    JOIN pc_student.Skillup_UserSignUp us ON up.skillup_id = us.skillup_id
+                    WHERE up.skillup_id = @skillup_id";
+
+                var selectResult = ds.executeSQL(selectQuery, Params);
+                if (selectResult == null || selectResult.Count == 0)
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "No UserProfile found";
+                }
+                else
+                {
+                    resData.rData["rCode"] = 0;
+                    resData.rData["rMessage"] = "User profile retrieved successfully";
+                    resData.rData["profile"] = selectResult[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                resData.rData["rCode"] = 1;
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+            }
+            return resData;
+        }
+    
+
     }
 }
 

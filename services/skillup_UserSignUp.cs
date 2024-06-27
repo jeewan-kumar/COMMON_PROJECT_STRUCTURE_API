@@ -169,7 +169,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 {
                     // Generate OTP
                     string otp = GenerateOTP();
-                    DateTime otpExpiration = DateTime.Now.AddMinutes(15);
+                    DateTime otpExpiration = DateTime.Now.AddMinutes(5);
 
                     // Update OTP in the database
                     MySqlParameter[] updateParams = new MySqlParameter[]

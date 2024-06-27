@@ -301,11 +301,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 var skillupId = req.addInfo["skillup_id"];
                 var courseId = req.addInfo["course_id"];
 
-                var checkQuery = @"
-                    SELECT COUNT(*) AS count 
-                    FROM pc_student.Skillup_Enrollment 
-                    WHERE skillup_id = @skillup_id AND course_id = @course_id;
-                ";
+                var checkQuery = $"SELECT * FROM pc_student.Skillup_Enrollment WHERE skillup_id = @skillup_id AND course_id = @course_id;";
 
                 // Define parameters
                 MySqlParameter[] checkParams = new MySqlParameter[]
