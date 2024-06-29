@@ -226,7 +226,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
 
                 var selectQuery = @"
                     SELECT up.profile_picture, up.first_name, up.last_name, up.date_of_birth, up.bio, us.email, us.phone_number,
-                           CONCAT(up.first_name, ' ', up.last_name) AS name
+                           CONCAT(up.first_name, ' ', up.last_name) AS name, up.gender
                     FROM pc_student.Skillup_UserProfile up
                     JOIN pc_student.Skillup_UserSignUp us ON up.skillup_id = us.skillup_id
                     WHERE up.skillup_id = @skillup_id";

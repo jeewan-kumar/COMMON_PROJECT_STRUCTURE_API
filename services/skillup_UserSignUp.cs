@@ -336,6 +336,38 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             }
             return resData;
         }
+        public async Task<responseData> ReadUserSignUp(requestData req)
+        {
+            responseData resData = new responseData();
+            try
+            {
+                MySqlParameter[] Params = new MySqlParameter[]
+              {
+                        new MySqlParameter("@skillup_id", req.addInfo["skillup_id"]),
+                       
+              };
+                var selectQuery = @"SELECT * FROM pc_student.Skillup_UserSignUp where skillup_id=@skillup_id";
+
+                var selectResult = ds.executeSQL(selectQuery, Params);
+                if (selectResult[0].Count() == 0)
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "No UserProfile found";
+                }
+                else
+                {
+                    resData.rData["rCode"] = 0;
+                    resData.rData["rMessage"] = "Userprofile retrieved Successfully";
+                    resData.rData["lessons"] = selectResult;
+                }
+            }
+            catch (Exception ex)
+            {
+                resData.rData["rCode"] = 1;
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+            }
+            return resData;
+        }
 
 
     }

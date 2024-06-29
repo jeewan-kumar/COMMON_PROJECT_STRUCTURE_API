@@ -515,6 +515,111 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
 
             return resData;
         }
+       public async Task<responseData> GetCourseDetailsWithLessons(requestData req)
+{
+    responseData resData = new responseData();
+    try
+    {
+        if (!req.addInfo.ContainsKey("course_id"))
+        {
+            resData.rData["rCode"] = 1;
+            resData.rData["rMessage"] = "Course ID is required";
+            return resData;
+        }
+
+        // Ensure course_id is parsed correctly
+        if (!int.TryParse(req.addInfo["course_id"].ToString(), out int courseId))
+        {
+            resData.rData["rCode"] = 1;
+            resData.rData["rMessage"] = "Invalid course ID format";
+            return resData;
+        }
+
+        // SQL query to fetch course details and associated lessons
+        string query = @"
+            SELECT c.course_Image AS course_Image, c.title AS course_title, c.description AS course_description,
+                   l.title AS lesson_title, l.description AS lesson_description
+            FROM pc_student.Skillup_Course c
+            LEFT JOIN pc_student.Skillup_Lesson l ON c.id = l.course_id
+            WHERE c.id = @courseId;
+        ";
+
+        MySqlParameter[] parameters = new MySqlParameter[]
+        {
+            new MySqlParameter("@courseId", courseId)
+        };
+
+        var result = ds.executeSQL(query, parameters);
+
+        if (result == null)
+        {
+            resData.rData["rCode"] = 1;
+            resData.rData["rMessage"] = "Failed to fetch course details and lessons";
+            return resData;
+        }
+
+        // Prepare response data
+        resData.rData["rCode"] = 0;
+        resData.rData["rMessage"] = "Course details and lessons retrieved successfully";
+        resData.rData["course_details"] = result;
+
+    }
+    catch (Exception ex)
+    {
+        resData.rData["rCode"] = 1;
+        resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+    }
+    return resData;
+}
+
+        public async Task<responseData> GetVideosForLesson(requestData req)
+        {
+            responseData resData = new responseData();
+            try
+            {
+                if (!req.addInfo.ContainsKey("lesson_id"))
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Lesson ID is required";
+                    return resData;
+                }
+
+                int lessonId = Convert.ToInt32(req.addInfo["lesson_id"]);
+
+                // SQL query to fetch videos based on lesson ID
+                string query = @"
+            SELECT id AS video_id, title AS video_title, url AS video_url, duration AS video_duration
+            FROM pc_student.Skillup_Video
+            WHERE lesson_id = @lessonId;
+        ";
+
+                MySqlParameter[] parameters = new MySqlParameter[]
+                {
+            new MySqlParameter("@lessonId", lessonId)
+                };
+
+                var result = ds.executeSQL(query, parameters);
+
+                if (result == null)
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Failed to fetch videos for the lesson";
+                    return resData;
+                }
+
+                // Prepare response data
+                resData.rData["rCode"] = 0;
+                resData.rData["rMessage"] = "Videos retrieved successfully";
+                resData.rData["videos"] = result;
+
+            }
+            catch (Exception ex)
+            {
+                resData.rData["rCode"] = 1;
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+            }
+            return resData;
+        }
 
 
 
