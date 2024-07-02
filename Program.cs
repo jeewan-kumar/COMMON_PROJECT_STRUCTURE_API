@@ -19,6 +19,7 @@ ConfigureServices(s =>
     s.AddSingleton<upload>();
     s.AddSingleton<contact>();
     s.AddSingleton<Skillup_Onboarding>();
+    s.AddSingleton<skillup_LearningPlan>();
 
     s.AddAuthorization();
     s.AddControllers();
@@ -52,6 +53,7 @@ ConfigureServices(s =>
         var Skillup_Onboarding = e.ServiceProvider.GetRequiredService<Skillup_Onboarding>();
         var upload = e.ServiceProvider.GetRequiredService<upload>();
         var contact = e.ServiceProvider.GetRequiredService<contact>();
+        var skillup_LearningPlan = e.ServiceProvider.GetRequiredService<skillup_LearningPlan>();
 
         e.MapPost("login",
      [AllowAnonymous] async (HttpContext http) =>
@@ -60,6 +62,17 @@ ConfigureServices(s =>
          requestData rData = JsonSerializer.Deserialize<requestData>(body);
          if (rData.eventID == "1001") // update
              await http.Response.WriteAsJsonAsync(await login.Login(rData));
+
+     });
+          e.MapPost("skillup_LearningPlan",
+     [AllowAnonymous] async (HttpContext http) =>
+     {
+         var body = await new StreamReader(http.Request.Body).ReadToEndAsync();
+         requestData rData = JsonSerializer.Deserialize<requestData>(body);
+         if (rData.eventID == "1001") // InsertLearningPlan
+             await http.Response.WriteAsJsonAsync(await skillup_LearningPlan.InsertLearningPlan(rData));
+        if (rData.eventID == "1002") // ReadLearningPlan
+             await http.Response.WriteAsJsonAsync(await skillup_LearningPlan.ReadLearningPlan(rData));
 
      });
         e.MapPost("skillup_UserSignUp",
@@ -97,6 +110,8 @@ ConfigureServices(s =>
                  await http.Response.WriteAsJsonAsync(await skillup_UserProfile.UpdateUserProfileImage(rData));
              if (rData.eventID == "1006") // UpdateUserProfileImage
                  await http.Response.WriteAsJsonAsync(await skillup_UserProfile.GetUserProfile(rData));
+            if (rData.eventID == "1007") // UpdateUserProfileImage
+                 await http.Response.WriteAsJsonAsync(await skillup_UserProfile.UpdateUserProfile(rData));
 
          });
 

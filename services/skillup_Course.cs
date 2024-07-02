@@ -537,7 +537,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
 
         // SQL query to fetch course details and associated lessons
         string query = @"
-            SELECT c.course_Image AS course_Image, c.title AS course_title, c.description AS course_description,
+            SELECT l.id AS lesson_id,c.course_Image AS course_Image, c.title AS course_title, c.description AS course_description,
                    l.title AS lesson_title, l.description AS lesson_description
             FROM pc_student.Skillup_Course c
             LEFT JOIN pc_student.Skillup_Lesson l ON c.id = l.course_id

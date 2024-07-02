@@ -12,37 +12,77 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             responseData resData = new responseData();
             try
             {
-                MySqlParameter[] insertParams = new MySqlParameter[]
-              {
-                        new MySqlParameter("@profile_picture", req.addInfo["profile_picture"].ToString()),
-                        new MySqlParameter("@first_name", req.addInfo["first_name"].ToString()),
-                        new MySqlParameter("@last_name", req.addInfo["last_name"].ToString()),
-                        new MySqlParameter("@date_of_birth", req.addInfo["date_of_birth"].ToString())  ,
-                        new MySqlParameter("@gender", req.addInfo["gender"].ToString()),
-                        new MySqlParameter("@bio", req.addInfo["bio"].ToString()),
-              };
-                var sq = @"insert into pc_student.Skillup_UserProfile(profile_picture,first_name,last_name,date_of_birth,gender,bio) values(@profile_picture,@first_name,@last_name,@date_of_birth,@gender,@bio)";
-
-                var insertResult = ds.executeSQL(sq, insertParams);
-                if (insertResult[0].Count() == null)
+                // Check if required parameters are present in the request
+                if (!req.addInfo.ContainsKey("skillup_id") ||
+                    !req.addInfo.ContainsKey("profile_picture") ||
+                    !req.addInfo.ContainsKey("first_name") ||
+                    !req.addInfo.ContainsKey("last_name") ||
+                    !req.addInfo.ContainsKey("date_of_birth") ||
+                    !req.addInfo.ContainsKey("gender") ||
+                    !req.addInfo.ContainsKey("bio"))
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "UnSuccessful";
+                    resData.rData["rMessage"] = "Missing required parameters";
+                    return resData;
+                }
+
+                byte[] imageData = null;
+
+                // Handle profile picture if it is provided as a file path
+                if (!string.IsNullOrEmpty(req.addInfo["profile_picture"].ToString()))
+                {
+                    var filePath = req.addInfo["profile_picture"].ToString();
+                    if (File.Exists(filePath))
+                    {
+                        imageData = File.ReadAllBytes(filePath);
+                    }
+                    else
+                    {
+                        resData.rData["rCode"] = 1;
+                        resData.rData["rMessage"] = "File not found: " + filePath;
+                        return resData;
+                    }
+                }
+
+                // Prepare SQL parameters for insertion
+                MySqlParameter[] insertParams = new MySqlParameter[]
+                {
+            new MySqlParameter("@skillup_id", req.addInfo["skillup_id"].ToString()),
+            new MySqlParameter("@profile_picture", MySqlDbType.Blob) { Value = (object)imageData ?? DBNull.Value },
+            new MySqlParameter("@first_name", req.addInfo["first_name"].ToString()),
+            new MySqlParameter("@last_name", req.addInfo["last_name"].ToString()),
+            new MySqlParameter("@date_of_birth", req.addInfo["date_of_birth"].ToString()),
+            new MySqlParameter("@gender", req.addInfo["gender"].ToString()),
+            new MySqlParameter("@bio", req.addInfo["bio"].ToString())
+                };
+
+                // Define the SQL query for insertion
+                string query = @"
+            INSERT INTO pc_student.Skillup_UserProfile
+                (skillup_id, profile_picture, first_name, last_name, date_of_birth, gender, bio)
+            VALUES
+                (@skillup_id, @profile_picture, @first_name, @last_name, @date_of_birth, @gender, @bio)
+        ";
+
+                // Execute the SQL query
+                var insertResult = ds.executeSQL(query, insertParams);
+
+                // Check if insertion was successful
+                if (insertResult == null || !insertResult.Any())
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Failed to create user profile";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "UserProfile Create Successful";
-
+                    resData.rData["rMessage"] = "User profile created successfully";
                 }
-
-
             }
             catch (Exception ex)
             {
                 resData.rData["rCode"] = 1;
                 resData.rData["rMessage"] = "An error occurred: " + ex.Message;
-
             }
             return resData;
         }
@@ -55,9 +95,9 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 MySqlParameter[] Params = new MySqlParameter[]
               {
                         new MySqlParameter("@id", req.addInfo["id"]),
-                       
+
               };
-                var selectQuery = @"SELECT * FROM pc_student.Skillup_UserProfile where id=@id";
+                var selectQuery = @"SELECT * FROM pc_student.Skillup_UserProfile where skillup_id=@skillup_id";
 
                 var selectResult = ds.executeSQL(selectQuery, Params);
                 if (selectResult[0].Count() == 0)
@@ -85,29 +125,67 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             responseData resData = new responseData();
             try
             {
-                MySqlParameter[] updateParams = new MySqlParameter[]
+                byte[] imageData = null;
+
+                // Handle profile picture if it is provided
+                if (req.addInfo.ContainsKey("profile_picture") && !string.IsNullOrEmpty(req.addInfo["profile_picture"].ToString()))
                 {
-                    new MySqlParameter("@id", req.addInfo["id"].ToString()),
-                    new MySqlParameter("@profile_picture", req.addInfo["profile_picture"].ToString()),
-                    new MySqlParameter("@first_name", req.addInfo["first_name"].ToString()),
-                    new MySqlParameter("@last_name", req.addInfo["last_name"].ToString()),
-                    new MySqlParameter("@date_of_birth", req.addInfo["date_of_birth"].ToString())  ,
-                    new MySqlParameter("@gender", req.addInfo["gender"].ToString()),
-                    new MySqlParameter("@bio", req.addInfo["bio"].ToString()),
-                };
+                    var filePath = req.addInfo["profile_picture"].ToString();
+                    if (File.Exists(filePath))
+                    {
+                        imageData = File.ReadAllBytes(filePath);
+                    }
+                    else
+                    {
+                        resData.rData["rCode"] = 1;
+                        resData.rData["rMessage"] = "File not found: " + filePath;
+                        return resData;
+                    }
+                }
 
-                var updateQuery = @"UPDATE pc_student.Skillup_UserProfile SET profile_picture = @profile_picture, first_name = @first_name, last_name = @last_name, date_of_birth = @date_of_birth, gender = @gender, bio = @bio  WHERE id = @id";
+                // Prepare parameters for the SQL query
+                List<MySqlParameter> updateParams = new List<MySqlParameter>
+        {
+            new MySqlParameter("@skillup_id", req.addInfo["skillup_id"].ToString()),
+            new MySqlParameter("@first_name", req.addInfo["first_name"].ToString()),
+            new MySqlParameter("@last_name", req.addInfo["last_name"].ToString()),
+            new MySqlParameter("@date_of_birth", req.addInfo["date_of_birth"].ToString()),
+            new MySqlParameter("@gender", req.addInfo["gender"].ToString()),
+            new MySqlParameter("@bio", req.addInfo["bio"].ToString())
+        };
 
-                var updateResult = ds.executeSQL(updateQuery, updateParams);
-                if (updateResult[0].Count() == 0 && updateResult==null)
+                if (imageData != null)
+                {
+                    updateParams.Add(new MySqlParameter("@profile_picture", MySqlDbType.Blob) { Value = imageData });
+                }
+                else
+                {
+                    updateParams.Add(new MySqlParameter("@profile_picture", DBNull.Value));
+                }
+
+                // SQL query to update record
+                var updateQuery = @"UPDATE pc_student.Skillup_UserProfile 
+                            SET profile_picture = @profile_picture, 
+                                first_name = @first_name, 
+                                last_name = @last_name, 
+                                date_of_birth = @date_of_birth, 
+                                gender = @gender, 
+                                bio = @bio  
+                            WHERE skillup_id = @skillup_id";
+
+                // Execute SQL update query
+                var updateResult = ds.executeSQL(updateQuery, updateParams.ToArray());
+
+                // Check if update was successful
+                if (updateResult == null || !updateResult.Any())
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "UnSuccessful update profile";
+                    resData.rData["rMessage"] = "Unsuccessful profile update";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "Profile updated Successfully";
+                    resData.rData["rMessage"] = "Profile updated successfully";
                 }
             }
             catch (Exception ex)
@@ -117,6 +195,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             }
             return resData;
         }
+
 
         public async Task<responseData> DeleteProfile(requestData req)
         {
@@ -138,7 +217,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 var deleteResult = ds.executeSQL(query, deleteParams);
 
                 // Check the result of the delete operation
-                if (deleteResult[0].Count() == 0 && deleteResult==null)
+                if (deleteResult[0].Count() == 0 && deleteResult == null)
                 {
                     resData.rData["rCode"] = 1; // Unsuccessful
                     resData.rData["rMessage"] = "Profile Unsuccessful delete";
@@ -168,43 +247,50 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 byte[] imageData = null;
 
                 // Check if the request contains a new image file to update
-                if (req.addInfo.ContainsKey("profile_picture"))
+                if (req.addInfo.ContainsKey("profile_picture") && !string.IsNullOrEmpty(req.addInfo["profile_picture"].ToString()))
                 {
                     var filePath = req.addInfo["profile_picture"].ToString();
-                    imageData = File.ReadAllBytes(filePath);
+                    if (File.Exists(filePath))
+                    {
+                        imageData = File.ReadAllBytes(filePath);
+                    }
+                    else
+                    {
+                        resData.rData["rCode"] = 1;
+                        resData.rData["rMessage"] = "File not found: " + filePath;
+                        return resData;
+                    }
+                }
+                else
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "No profile picture provided";
+                    return resData;
                 }
 
                 // Parameters for SQL query
-                MySqlParameter[] updateParams = null;
-
-                // Check if image data is available to update
-                if (imageData != null)
+                MySqlParameter[] updateParams = new MySqlParameter[]
                 {
-                    updateParams = new MySqlParameter[]
-                    {
-                new MySqlParameter("@id", req.addInfo["id"].ToString()),
-                new MySqlParameter("@profile_picture", MySqlDbType.Blob) { Value = imageData },
-
-                    };
-                }
-
+            new MySqlParameter("@skillup_id", req.addInfo["skillup_id"].ToString()),
+            new MySqlParameter("@profile_picture", MySqlDbType.Blob) { Value = imageData }
+                };
 
                 // SQL query to update record
-                var updateQuery = @"UPDATE pc_student.Skillup_UserProfile SET profile_picture = @profile_picture WHERE id = @id";
+                var updateQuery = @"UPDATE pc_student.Skillup_UserProfile SET profile_picture = @profile_picture WHERE skillup_id = @skillup_id";
 
                 // Execute SQL update query
                 var updateResult = ds.executeSQL(updateQuery, updateParams);
 
                 // Check if update was successful
-                if (updateResult == null || updateResult.Count() == 0)
+                if (updateResult == null || !updateResult.Any())
                 {
                     resData.rData["rCode"] = 1;
-                    resData.rData["rMessage"] = "Unsuccessful profile_picture update";
+                    resData.rData["rMessage"] = "Unsuccessful profile picture update";
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
-                    resData.rData["rMessage"] = "Updated Successfully profile_picture";
+                    resData.rData["rMessage"] = "Profile picture updated successfully";
                 }
             }
             catch (Exception ex)
@@ -214,7 +300,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             }
             return resData;
         }
-         public async Task<responseData> GetUserProfile(requestData req)
+        public async Task<responseData> GetUserProfile(requestData req)
         {
             responseData resData = new responseData();
             try
@@ -251,7 +337,101 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
             }
             return resData;
         }
-    
+        public async Task<responseData> UpdateUserProfile(requestData req)
+        {
+            responseData resData = new responseData();
+
+            try
+            {
+                // Validate input parameters
+                if (!req.addInfo.ContainsKey("skillup_id"))
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Skillup ID is required";
+                    return resData;
+                }
+
+                // Prepare profile picture data if provided
+                byte[] imageData = null;
+                if (req.addInfo.ContainsKey("profile_picture") && !string.IsNullOrEmpty(req.addInfo["profile_picture"].ToString()))
+                {
+                    var filePath = req.addInfo["profile_picture"].ToString();
+                    if (File.Exists(filePath))
+                    {
+                        imageData = File.ReadAllBytes(filePath);
+                    }
+                    else
+                    {
+                        resData.rData["rCode"] = 1;
+                        resData.rData["rMessage"] = "File not found: " + filePath;
+                        return resData;
+                    }
+                }
+
+                // Prepare update parameters
+                List<MySqlParameter> updateParams = new List<MySqlParameter>
+        {
+            new MySqlParameter("@skillup_id", req.addInfo["skillup_id"].ToString()),
+            new MySqlParameter("@first_name", req.addInfo["first_name"].ToString()),
+            new MySqlParameter("@last_name", req.addInfo["last_name"].ToString()),
+            new MySqlParameter("@date_of_birth", req.addInfo["date_of_birth"].ToString()),
+            new MySqlParameter("@bio", req.addInfo["bio"].ToString()),
+            new MySqlParameter("@email", req.addInfo["email"].ToString()),
+            new MySqlParameter("@phone_number", req.addInfo["phone_number"].ToString()),
+            new MySqlParameter("@gender", req.addInfo["gender"].ToString())
+        };
+
+                // Add profile picture parameter if imageData is not null
+                if (imageData != null)
+                {
+                    updateParams.Add(new MySqlParameter("@profile_picture", MySqlDbType.Blob) { Value = imageData });
+                }
+                else
+                {
+                    updateParams.Add(new MySqlParameter("@profile_picture", DBNull.Value));
+                }
+
+                // SQL query to update user profile data
+                string updateQuery = @"
+            UPDATE pc_student.Skillup_UserProfile up
+            JOIN pc_student.Skillup_UserSignUp us ON up.skillup_id = us.skillup_id
+            SET
+                up.profile_picture = @profile_picture,
+                up.first_name = @first_name,
+                up.last_name = @last_name,
+                up.date_of_birth = @date_of_birth,
+                up.bio = @bio,
+                us.email = @email,
+                us.phone_number = @phone_number,
+                up.gender = @gender
+            WHERE
+                up.skillup_id = @skillup_id;
+        ";
+
+                // Execute the update query
+                var updateResult = ds.executeSQL(updateQuery, updateParams.ToArray());
+
+                // Check if update was successful
+                if (updateResult == null || updateResult.Count == 0)
+                {
+                    resData.rData["rCode"] = 1;
+                    resData.rData["rMessage"] = "Failed to update user profile";
+                }
+                else
+                {
+                    resData.rData["rCode"] = 0;
+                    resData.rData["rMessage"] = "User profile updated successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                resData.rData["rCode"] = 1;
+                resData.rData["rMessage"] = "An error occurred: " + ex.Message;
+            }
+
+            return resData;
+        }
+
 
     }
 }
