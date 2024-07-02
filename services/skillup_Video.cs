@@ -168,7 +168,10 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 };
 
                 // Define the SELECT query to retrieve lessons for a course
-                string selectQuery = @"SELECT * FROM pc_student.Skillup_Video WHERE lesson_id = @lesson_id";
+                string selectQuery = @"SELECT sv.id,sc.title AS course_title, sc.course_Image, sv.title AS video_title, sv.url, sv.duration       
+                FROM Skillup_Video sv
+                JOIN Skillup_Lesson sl ON sv.lesson_id = sl.id
+                JOIN Skillup_Course sc ON sl.course_id = sc.id WHERE lesson_id = @lesson_id";
 
                 // Execute the query
                 var selectResult = ds.executeSQL(selectQuery, queryParams);
