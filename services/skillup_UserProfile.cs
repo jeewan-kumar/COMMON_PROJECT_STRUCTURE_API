@@ -26,29 +26,29 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                     return resData;
                 }
 
-                byte[] imageData = null;
+                // byte[] imageData = null;
 
-                // Handle profile picture if it is provided as a file path
-                if (!string.IsNullOrEmpty(req.addInfo["profile_picture"].ToString()))
-                {
-                    var filePath = req.addInfo["profile_picture"].ToString();
-                    if (File.Exists(filePath))
-                    {
-                        imageData = File.ReadAllBytes(filePath);
-                    }
-                    else
-                    {
-                        resData.rData["rCode"] = 1;
-                        resData.rData["rMessage"] = "File not found: " + filePath;
-                        return resData;
-                    }
-                }
+                // // Handle profile picture if it is provided as a file path
+                // if (!string.IsNullOrEmpty(req.addInfo["profile_picture"].ToString()))
+                // {
+                //     var filePath = req.addInfo["profile_picture"].ToString();
+                //     if (File.Exists(filePath))
+                //     {
+                //         imageData = File.ReadAllBytes(filePath);
+                //     }
+                //     else
+                //     {
+                //         resData.rData["rCode"] = 1;
+                //         resData.rData["rMessage"] = "File not found: " + filePath;
+                //         return resData;
+                //     }
+                // }
 
                 // Prepare SQL parameters for insertion
                 MySqlParameter[] insertParams = new MySqlParameter[]
                 {
             new MySqlParameter("@skillup_id", req.addInfo["skillup_id"].ToString()),
-            new MySqlParameter("@profile_picture", MySqlDbType.Blob) { Value = (object)imageData ?? DBNull.Value },
+            new MySqlParameter("@profile_picture",req.addInfo["profile_picture"].ToString()),
             new MySqlParameter("@first_name", req.addInfo["first_name"].ToString()),
             new MySqlParameter("@last_name", req.addInfo["last_name"].ToString()),
             new MySqlParameter("@date_of_birth", req.addInfo["date_of_birth"].ToString()),
@@ -72,11 +72,14 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                 {
                     resData.rData["rCode"] = 1;
                     resData.rData["rMessage"] = "Failed to create user profile";
+                   
                 }
                 else
                 {
                     resData.rData["rCode"] = 0;
                     resData.rData["rMessage"] = "User profile created successfully";
+                    // resData.rData["id"]=insertResult[0][0]["skillup_id"]int.TryParse;
+                    
                 }
             }
             catch (Exception ex)

@@ -37,8 +37,8 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                   };
                     var sq = @"insert into pc_student.Skillup_UserSignUp(email,phone_number,password ) values(@email,@phone_number,@password)";
 
-                    var insertResult = ds.executeSQL(sq, insertParams);
-                    if (insertResult[0].Count() == null)
+                    var insertResult = ds.ExecuteInsertAndGetLastId(sq, insertParams);
+                    if (insertResult == null)
                     {
                         resData.rData["rCode"] = 1;
                         resData.rData["rMessage"] = "Registration Unsuccessful";
@@ -47,7 +47,7 @@ namespace COMMON_PROJECT_STRUCTURE_API.services
                     {
                         resData.rData["rCode"] = 0;
                         resData.rData["rMessage"] = "Registration Successful";
-
+                        resData.rData["id"]=insertResult;
                     }
 
                 }

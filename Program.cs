@@ -108,7 +108,7 @@ ConfigureServices(s =>
                  await http.Response.WriteAsJsonAsync(await skillup_UserProfile.DeleteProfile(rData));
              if (rData.eventID == "1005") // UpdateUserProfileImage
                  await http.Response.WriteAsJsonAsync(await skillup_UserProfile.UpdateUserProfileImage(rData));
-             if (rData.eventID == "1006") // UpdateUserProfileImage
+             if (rData.eventID == "1006") // GetUserProfile
                  await http.Response.WriteAsJsonAsync(await skillup_UserProfile.GetUserProfile(rData));
             if (rData.eventID == "1007") // UpdateUserProfileImage
                  await http.Response.WriteAsJsonAsync(await skillup_UserProfile.UpdateUserProfile(rData));
